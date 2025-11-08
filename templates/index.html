@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{%block main %}
+    <p> Total cash available: <strong>{{cash}}</strong> </p>
+    {% if s_price %}
+        <p> <strong>SOLD </strong> {{s_qty}} stocks of {{s_sym}} at <strong>{{s_price}}</strong> each.</p>
+    {% elif price %}
+        <p> <strong>PURCHASED </strong> {{qty}} stocks of {{sym}} at <strong>{{price}}</strong> each.</p>
+    {% endif %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Quantity Owned</th>
+                    <th>Current Price</th>
+                    <th> Total Value </th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for qnty in qnty %}
+                <tr>
+                    <td>{{qnty.symbol}}</td>
+                    <td>{{qnty.qty}}</td>
+                    <td>{{qnty.curr_price}}</td>
+                    <td>{{qnty.total_value}}</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+        <p> Grand Total: <strong>{{grand_total}}</strong> </p>
+
+{% endblock %}

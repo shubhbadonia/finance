@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block head %}
+    History
+{% endblock %}
+
+{% block main %}
+    <table>
+        <thead>
+            <tr>
+                <th>Stock Symbol</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Buy/Sell</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{transaction.symbol}}</td>
+                <td>{{transaction.purchase_quantity}}</td>
+                <td>{{transaction.purchase_price}}</td>
+                {% if transaction.type == "sold" %}
+                    <td>Sold</td>
+                {% else %}
+                    <td>Bought</td>
+                {% endif %}
+                <td>{{transaction.time}}</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+{% endblock %}
