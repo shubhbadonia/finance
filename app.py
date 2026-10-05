@@ -79,7 +79,7 @@ def buy():
     if request.method == "POST":
         symbol = request.form.get("symbol")
         qty = request.form.get("shares")
-        if qty is "":
+        if qty == "":
             return apology("Bruh...")
         try:
             qty = float(qty)
@@ -280,7 +280,7 @@ def sell():
         if not symbol:
             return apology("Select stock")
         qty = request.form.get("shares")
-        if qty is "":
+        if qty == "":
             return apology("Bruh...")
         if not qty.isdigit():
             return apology("Enter a valid number")
@@ -332,3 +332,7 @@ def sell():
             stocks.append(i["symbol"])
 
         return render_template("sell.html", stocks=stocks)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
