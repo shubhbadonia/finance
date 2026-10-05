@@ -1,11 +1,14 @@
 import os
+import json
 
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from helpers import apology, login_required, lookup, usd
+
+import google.generativeai as genai
 
 
 # Configure application
@@ -332,6 +335,47 @@ def sell():
             stocks.append(i["symbol"])
 
         return render_template("sell.html", stocks=stocks)
+
+
+@app.route("/chat", methods=["POST"])
+@login_required
+def chat():
+    """Finance chatbot powered by Gemini"""
+    try:
+        data = request.json
+        user_message = data.get("message", "").strip()
+        
+        if not user_message:
+            return jsonify({"error": "Message cannot be empty"}), 400
+        
+        # Get API key from environment variable
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            return jsonify({"error": "API key not configured. Set GEMINI_API_KEY environment variable."}), 500
+        
+        # Configure Gemini
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-pro")
+        
+        # Create finance-focused prompt
+        system_prompt = """You are a helpful financial advisor assistant. Answer questions related to:
+- Stock market and investing
+- Personal finance
+- Trading strategies
+- Financial literacy
+
+Keep responses concise (2-3 sentences max). If the question is not finance-related, politely redirect to finance topics."""
+        
+        full_prompt = f"{system_prompt}\n\nUser Question: {user_message}"
+        
+        # Get response from Gemini
+        response = model.generate_content(full_prompt)
+        bot_response = response.text
+        
+        return jsonify({"response": bot_response}), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

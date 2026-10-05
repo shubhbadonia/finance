@@ -1,94 +1,418 @@
-<!DOCTYPE html>
+<!doctype html>
 
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
 
-    <head>
+    <!-- http://getbootstrap.com/docs/5.3/ -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
 
-        <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1, width=device-width">
+    <!-- https://favicon.io/emoji-favicons/money-bag/ -->
+    <link href="/static/favicon.ico" rel="icon" />
 
-        <!-- http://getbootstrap.com/docs/5.3/ -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link href="/static/styles.css" rel="stylesheet" />
 
-        <!-- https://favicon.io/emoji-favicons/money-bag/ -->
-        <link href="/static/favicon.ico" rel="icon">
+    <title>Finance: {% block title %}{% endblock %}</title>
+  </head>
 
-        <link href="/static/styles.css" rel="stylesheet">
+  <body>
+    <nav class="bg-light border navbar navbar-expand-md navbar-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/"
+          ><span class="blue">D</span><span class="red">E</span
+          ><span class="yellow">M</span><span class="green">O</span>
+          <span class="red">Finance</span></a
+        >
+        <button
+          aria-controls="navbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+          class="navbar-toggler"
+          data-target="#navbar"
+          data-toggle="collapse"
+          type="button"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+          {% if session["user_id"] %}
+          <ul class="navbar-nav me-auto mt-2">
+            <li class="nav-item">
+              <a class="nav-link" href="/quote">Quote</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/buy">Buy</a></li>
+            <li class="nav-item"><a class="nav-link" href="/sell">Sell</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="/history">History</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto mt-2">
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">Log Out</a>
+            </li>
+          </ul>
+          {% else %}
+          <ul class="navbar-nav ms-auto mt-2">
+            <li class="nav-item">
+              <a class="nav-link" href="/register">Register</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/login">Log In</a>
+            </li>
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
 
+    {% if get_flashed_messages() %}
+    <header>
+      <div class="alert alert-primary mb-0 text-center" role="alert">
+        {{ get_flashed_messages() | join(" ") }}
+      </div>
+    </header>
+    {% endif %}
+    <!--ID IS GIVEN HERE -->
+    <main class="container py-5 text-center">
+      {% block main %}{% endblock %}
+    </main>
 
-        <title>Finance: {% block title %}{% endblock %}</title>
+    <footer class="mb-5">
+      <p class="mb-3 small text-center text-muted">
+        Data provided by <a href="https://finance.yahoo.com/">Yahoo</a>
+      </p>
 
+      <form
+        action="https://validator.w3.org/check"
+        class="text-center"
+        enctype="multipart/form-data"
+        method="post"
+        target="_blank"
+      >
+        <input name="doctype" type="hidden" value="HTML5" />
+        <input name="fragment" type="hidden" />
+        <input
+          style="width: 30px; height: 20px"
+          src="/static/I_heart_validator.png"
+          type="image"
+        />
+        <!-- https://validator.w3.org/ -->
+      </form>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // Adapted from https://stackoverflow.com/a/10162353
+          const html =
+            "<!DOCTYPE " +
+            document.doctype.name +
+            (document.doctype.publicId
+              ? ' PUBLIC "' + document.doctype.publicId + '"'
+              : "") +
+            (!document.doctype.publicId && document.doctype.systemId
+              ? " SYSTEM"
+              : "") +
+            (document.doctype.systemId
+              ? ' "' + document.doctype.systemId + '"'
+              : "") +
+            ">\n" +
+            document.documentElement.outerHTML;
+          document.querySelector(
+            'form[action="https://validator.w3.org/check"] > input[name="fragment"]',
+          ).value = html;
+        });
+      </script>
+    </footer>
 
+    <!-- Finance Chatbot -->
+    {% if session["user_id"] %}
+    <div id="chatbot-container" class="chatbot-container">
+      <div class="chatbot-header">
+        <span>Finance Assistant</span>
+        <button id="chatbot-toggle" class="chatbot-toggle-btn">−</button>
+      </div>
+      <div id="chatbot-messages" class="chatbot-messages">
+        <div class="chatbot-message bot-message">
+          <p>
+            Hi! I'm your Finance Assistant. Ask me anything about stocks,
+            investing, or personal finance! 💰
+          </p>
+        </div>
+      </div>
+      <div class="chatbot-input-area">
+        <input
+          type="text"
+          id="chatbot-input"
+          class="chatbot-input"
+          placeholder="Ask about stocks..."
+        />
+        <button id="chatbot-send" class="chatbot-send-btn">Send</button>
+      </div>
+    </div>
 
-    </head>
+    <style>
+      .chatbot-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: 500px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
+        display: flex;
+        flex-direction: column;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        z-index: 1000;
+      }
 
-    <body>
+      .chatbot-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+      }
 
-        <nav class="bg-light border navbar navbar-expand-md navbar-light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/"><span class="blue">D</span><span class="red">E</span><span class="yellow">M</span><span class="green">O</span> <span class="red">Finance</span></a>
-                <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbar">
-                    {% if session["user_id"] %}
-                        <ul class="navbar-nav me-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/quote">Quote</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/buy">Buy</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/sell">Sell</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
-                        </ul>
-                        <ul class="navbar-nav ms-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
-                        </ul>
-                    {% else %}
-                        <ul class="navbar-nav ms-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
-                        </ul>
-                    {% endif %}
-                </div>
-            </div>
-        </nav>
+      .chatbot-toggle-btn {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+      }
 
-        {% if get_flashed_messages() %}
-            <header>
-                <div class="alert alert-primary mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }}
-                </div>
-            </header>
-        {% endif %}
-<!--ID IS GIVEN HERE -->
-        <main class="container py-5 text-center">
-            {% block main %}{% endblock %}
-        </main>
+      .chatbot-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        background: #f5f5f5;
+      }
 
-        <footer class="mb-5">
+      .chatbot-message {
+        margin-bottom: 12px;
+        display: flex;
+        animation: fadeIn 0.3s ease-in;
+      }
 
-            <p class="mb-3 small text-center text-muted">
-                Data provided by <a href="https://finance.yahoo.com/">Yahoo</a>
-            </p>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-            <form action="https://validator.w3.org/check" class="text-center" enctype="multipart/form-data" method="post" target="_blank">
-                <input name="doctype" type="hidden" value="HTML5">
-                <input name="fragment" type="hidden">
-                <input style="width:30px; height:20px;" src="/static/I_heart_validator.png" type="image"> <!-- https://validator.w3.org/ -->
-            </form>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Adapted from https://stackoverflow.com/a/10162353
-                    const html = '<!DOCTYPE ' +
-                    document.doctype.name +
-                    (document.doctype.publicId ? ' PUBLIC "' + document.doctype.publicId + '"' : '') +
-                    (!document.doctype.publicId && document.doctype.systemId ? ' SYSTEM' : '') +
-                    (document.doctype.systemId ? ' "' + document.doctype.systemId + '"' : '') +
-                    '>\n' + document.documentElement.outerHTML;
-                    document.querySelector('form[action="https://validator.w3.org/check"] > input[name="fragment"]').value = html;
-                });
-            </script>
-        </footer>
+      .chatbot-message p {
+        margin: 0;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 1.4;
+        max-width: 80%;
+        word-wrap: break-word;
+      }
 
-    </body>
+      .user-message {
+        justify-content: flex-end;
+      }
 
+      .user-message p {
+        background: #667eea;
+        color: white;
+      }
+
+      .bot-message p {
+        background: #e9ecef;
+        color: #333;
+      }
+
+      .chatbot-input-area {
+        display: flex;
+        gap: 8px;
+        padding: 12px;
+        border-top: 1px solid #ddd;
+        background: white;
+        border-radius: 0 0 12px 12px;
+      }
+
+      .chatbot-input {
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 14px;
+        outline: none;
+      }
+
+      .chatbot-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+      }
+
+      .chatbot-send-btn {
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+
+      .chatbot-send-btn:hover {
+        background: #764ba2;
+      }
+
+      .chatbot-send-btn:active {
+        transform: scale(0.95);
+      }
+
+      .chatbot-loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .chatbot-container {
+          width: 100%;
+          height: 100%;
+          bottom: 0;
+          right: 0;
+          border-radius: 0;
+        }
+      }
+    </style>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const chatInput = document.getElementById("chatbot-input");
+        const sendBtn = document.getElementById("chatbot-send");
+        const messagesArea = document.getElementById("chatbot-messages");
+        const toggleBtn = document.getElementById("chatbot-toggle");
+        const container = document.getElementById("chatbot-container");
+        let isMinimized = false;
+
+        // Send message on button click
+        sendBtn.addEventListener("click", sendMessage);
+
+        // Send message on Enter key
+        chatInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+
+        // Toggle minimize
+        toggleBtn.addEventListener("click", function () {
+          isMinimized = !isMinimized;
+          if (isMinimized) {
+            document.querySelector(".chatbot-messages").style.display = "none";
+            document.querySelector(".chatbot-input-area").style.display =
+              "none";
+            toggleBtn.textContent = "+";
+          } else {
+            document.querySelector(".chatbot-messages").style.display = "block";
+            document.querySelector(".chatbot-input-area").style.display =
+              "flex";
+            toggleBtn.textContent = "−";
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+          }
+        });
+
+        function sendMessage() {
+          const message = chatInput.value.trim();
+          if (!message) return;
+
+          // Add user message
+          addMessage(message, true);
+          chatInput.value = "";
+
+          // Show loading indicator
+          const loadingDiv = document.createElement("div");
+          loadingDiv.className = "chatbot-message bot-message";
+          loadingDiv.innerHTML = '<p><div class="chatbot-loading"></div></p>';
+          messagesArea.appendChild(loadingDiv);
+          messagesArea.scrollTop = messagesArea.scrollHeight;
+
+          // Send to backend
+          fetch("/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: message }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              loadingDiv.remove();
+              if (data.response) {
+                addMessage(data.response, false);
+              } else if (data.error) {
+                addMessage("Error: " + data.error, false);
+              }
+            })
+            .catch((error) => {
+              loadingDiv.remove();
+              addMessage(
+                "Sorry, something went wrong: " + error.message,
+                false,
+              );
+            });
+        }
+
+        function addMessage(text, isUser) {
+          const messageDiv = document.createElement("div");
+          messageDiv.className =
+            "chatbot-message " + (isUser ? "user-message" : "bot-message");
+          messageDiv.innerHTML = "<p>" + escapeHtml(text) + "</p>";
+          messagesArea.appendChild(messageDiv);
+          messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+          const div = document.createElement("div");
+          div.textContent = text;
+          return div.innerHTML;
+        }
+      });
+    </script>
+    {% endif %}
+  </body>
 </html>
